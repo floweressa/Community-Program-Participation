@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bayanihan — Community Program Management</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --primary:   #334e5e;
+    --primary-dk:#2a3f4d;
+    --text-dark: #1a202c;
+    --text-mid:  #4a5568;
+    --text-muted:#718096;
+    --text-hint: #a0aec0;
+    --bg:        #f8fafc;
+    --surface:   #ffffff;
+    --border:    #e2e8f0;
+    --light:     #f1f5f9;
+    --chip-blue-bg:#ebf8ff; --chip-blue-tx:#2b6cb0;
+    --chip-grn-bg: #f0fff4; --chip-grn-tx: #276749;
+    --chip-org-bg: #fffbeb; --chip-org-tx: #744210;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text-dark);
+    line-height: 1.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 5%;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .nav-logo {
+    font-weight: 700; font-size: 1.25rem; color: var(--primary);
+    letter-spacing: 0.4px; text-decoration: none;
+  }
+  .nav-links { display: flex; align-items: center; gap: 8px; }
+  .nav-links a {
+    color: var(--text-muted); text-decoration: none;
+    font-size: 0.9rem; font-weight: 500;
+    padding: 8px 14px; border-radius: 10px;
+    transition: background 0.18s, color 0.18s;
+  }
+  .nav-links a:hover { background: var(--light); color: var(--primary); }
+  .btn-nav {
+    background: var(--primary); color: #fff !important;
+    padding: 9px 20px !important; border-radius: 10px !important;
+    font-weight: 600 !important; transition: background 0.18s !important;
+  }
+  .btn-nav:hover { background: var(--primary-dk) !important; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 100px 5% 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 900px 600px at 70% 40%, #ebf8ff 0%, transparent 70%),
+      radial-gradient(ellipse 600px 400px at 20% 80%, #f0fff4 0%, transparent 70%),
+      var(--bg);
+  }
+  .hero-inner {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; gap: 6%;
+    max-width: 1200px; margin: 0 auto; width: 100%;
+  }
+  .hero-left { flex: 1; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--chip-blue-bg); color: var(--chip-blue-tx);
+    font-size: 0.78rem; font-weight: 700;
+    padding: 5px 14px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    margin-bottom: 24px;
+  }
+  .hero-eyebrow i { font-size: 0.72rem; }
+  .hero-h1 {
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    font-weight: 700; color: var(--text-dark);
+    line-height: 1.12; margin-bottom: 22px;
+    letter-spacing: -0.5px;
+  }
+  .hero-h1 span { color: var(--primary); }
+  .hero-sub {
+    font-size: 1.05rem; color: var(--text-muted);
+    max-width: 480px; line-height: 1.7; margin-bottom: 38px;
+  }
+  .hero-ctas { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--primary); color: #fff;
+    padding: 14px 28px; border-radius: 12px;
+    font-weight: 700; font-size: 0.95rem;
+    text-decoration: none; transition: background 0.2s, transform 0.15s;
+    border: none; cursor: pointer;
+  }
+  .btn-primary:hover { background: var(--primary-dk); transform: translateY(-1px); }
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--surface); color: var(--text-mid);
+    padding: 14px 28px; border-radius: 12px;
+    font-weight: 600; font-size: 0.95rem;
+    text-decoration: none; transition: background 0.2s, border-color 0.2s;
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--light); border-color: #cbd5e0; }
+
+  /* ── HERO CARD ── */
+  .hero-right { flex: 0 0 420px; }
+  .hero-card {
+    background: var(--surface); border-radius: 24px;
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 60px -10px rgba(51,78,94,0.12);
+    padding: 28px; overflow: hidden;
+  }
+  .hero-card-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 22px; padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hch-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .hch-dot-r { background: #fc8181; }
+  .hch-dot-y { background: #f6e05e; }
+  .hch-dot-g { background: #68d391; }
+  .hch-title { font-size: 0.82rem; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+  .kpi-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .kpi-mini {
+    background: var(--light); border-radius: 14px; padding: 16px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .kpi-mini-icon { font-size: 1.1rem; margin-bottom: 6px; }
+  .kpi-mini-val { font-size: 1.6rem; font-weight: 700; color: var(--text-dark); line-height: 1; }
+  .kpi-mini-lbl { font-size: 0.72rem; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.4px; }
+  .program-list { display: flex; flex-direction: column; gap: 10px; }
+  .program-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; background: var(--light);
+    border-radius: 12px;
+  }
+  .program-row-name { font-size: 0.85rem; font-weight: 600; color: var(--text-dark); }
+  .program-row-sub { font-size: 0.72rem; color: var(--text-hint); margin-top: 2px; }
+  .pill {
+    display: inline-block; padding: 3px 11px;
+    border-radius: 20px; font-size: 0.72rem; font-weight: 700;
+    text-transform: capitalize;
+  }
+  .pill-ongoing    { background: var(--chip-grn-bg); color: var(--chip-grn-tx); }
+  .pill-upcoming   { background: var(--chip-blue-bg); color: var(--chip-blue-tx); }
+  .pill-completed  { background: var(--light); color: var(--text-muted); }
+
+  /* ── STATS BAND ── */
+  .stats-band {
+    background: var(--primary);
+    padding: 52px 5%;
+  }
+  .stats-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+  }
+  .stat-item {
+    text-align: center; padding: 0 24px;
+    border-right: 1px solid rgba(255,255,255,0.15);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num {
+    font-size: 2.6rem; font-weight: 700; color: #fff; line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat-lbl { font-size: 0.82rem; color: rgba(255,255,255,0.65); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* ── SECTIONS SHARED ── */
+  section.content { padding: 90px 5%; }
+  .section-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--primary);
+    margin-bottom: 14px;
+  }
+  .section-h2 {
+    font-size: clamp(1.7rem, 3.5vw, 2.5rem);
+    font-weight: 700; color: var(--text-dark);
+    line-height: 1.2; margin-bottom: 16px;
+  }
+  .section-sub {
+    font-size: 1rem; color: var(--text-muted);
+    max-width: 520px; line-height: 1.7;
+  }
+  .section-header { margin-bottom: 52px; }
+
+  /* ── FEATURES ── */
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 20px; max-width: 1100px; margin: 0 auto;
+  }
+  .feature-card {
+    background: var(--surface); border-radius: 20px;
+    border: 1px solid var(--border); padding: 30px;
+    transition: box-shadow 0.22s, transform 0.22s;
+  }
+  .feature-card:hover {
+    box-shadow: 0 12px 32px -6px rgba(51,78,94,0.12);
+    transform: translateY(-3px);
+  }
+  .feature-icon {
+    width: 46px; height: 46px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; margin-bottom: 20px;
+  }
+  .feature-h3 { font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; }
+  .feature-p  { font-size: 0.88rem; color: var(--text-muted); line-height: 1.65; }
+
+  /* ── HOW IT WORKS ── */
+  section.how { padding: 90px 5%; background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .how-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: flex-start; gap: 8%; }
+  .how-left  { flex: 0 0 340px; }
+  .how-right { flex: 1; display: flex; flex-direction: column; gap: 0; }
+  .step {
+    display: flex; gap: 20px; padding: 24px 0;
+    border-bottom: 1px solid var(--border); position: relative;
+  }
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+    background: var(--primary); color: #fff;
+    font-weight: 700; font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 2px;
+  }
+  .step-h { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 5px; }
+  .step-p  { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+
+  /* ── PORTALS ── */
+  .portals-grid {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  }
+  .portal-card {
+    background: var(--surface); border-radius: 20px;
+    border: 1px solid var(--border); overflow: hidden;
+    transition: box-shadow 0.22s, transform 0.22s;
+  }
+  .portal-card:hover {
+    box-shadow: 0 14px 36px -6px rgba(51,78,94,0.12);
+    transform: translateY(-3px);
+  }
+  .portal-header { padding: 28px 28px 20px; }
+  .portal-badge {
+    display: inline-block; padding: 4px 12px;
+    border-radius: 20px; font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 16px;
+  }
+  .portal-h3 { font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+  .portal-p  { font-size: 0.85rem; color: var(--text-muted); line-height: 1.65; }
+  .portal-divider { height: 1px; background: var(--border); }
+  .portal-footer {
+    padding: 18px 28px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .portal-link {
+    font-size: 0.85rem; font-weight: 700; color: var(--primary);
+    text-decoration: none; display: flex; align-items: center; gap: 6px;
+    transition: gap 0.18s;
+  }
+  .portal-link:hover { gap: 10px; }
+  .portal-pill-count { font-size: 0.75rem; color: var(--text-hint); }
+
+  /* ── TESTIMONIAL / CTA ── */
+  .cta-section {
+    background: var(--primary); padding: 100px 5%;
+    text-align: center;
+  }
+  .cta-inner { max-width: 620px; margin: 0 auto; }
+  .cta-h2 {
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 700; color: #fff; margin-bottom: 16px; line-height: 1.2;
+  }
+  .cta-sub { font-size: 1rem; color: rgba(255,255,255,0.72); margin-bottom: 38px; line-height: 1.7; }
+  .cta-btns { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+  .btn-white {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #fff; color: var(--primary);
+    padding: 14px 30px; border-radius: 12px;
+    font-weight: 700; font-size: 0.95rem;
+    text-decoration: none; transition: background 0.2s, transform 0.15s;
+  }
+  .btn-white:hover { background: var(--light); transform: translateY(-1px); }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; color: rgba(255,255,255,0.85);
+    padding: 14px 28px; border-radius: 12px;
+    font-weight: 600; font-size: 0.95rem;
+    text-decoration: none; border: 1px solid rgba(255,255,255,0.3);
+    transition: background 0.2s;
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.1); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--surface); border-top: 1px solid var(--border);
+    padding: 48px 5% 32px;
+  }
+  .footer-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 40px;
+  }
+  .footer-brand .logo { font-weight: 700; font-size: 1.15rem; color: var(--primary); }
+  .footer-brand p { font-size: 0.83rem; color: var(--text-hint); margin-top: 8px; max-width: 220px; line-height: 1.6; }
+  .footer-links { display: flex; gap: 60px; }
+  .footer-col h4 { font-size: 0.78rem; font-weight: 700; color: var(--text-dark); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
+  .footer-col a  { display: block; font-size: 0.85rem; color: var(--text-muted); text-decoration: none; margin-bottom: 9px; transition: color 0.15s; }
+  .footer-col a:hover { color: var(--primary); }
+  .footer-bottom {
+    max-width: 1100px; margin: 32px auto 0;
+    padding-top: 24px; border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.78rem; color: var(--text-hint);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { opacity: 0; animation: fadeUp 0.6s ease forwards; }
+  .d1 { animation-delay: 0.05s; }
+  .d2 { animation-delay: 0.15s; }
+  .d3 { animation-delay: 0.25s; }
+  .d4 { animation-delay: 0.35s; }
+  .d5 { animation-delay: 0.5s; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .hero-inner    { flex-direction: column; }
+    .hero-right    { width: 100%; }
+    .features-grid { grid-template-columns: 1fr 1fr; }
+    .portals-grid  { grid-template-columns: 1fr; }
+    .stats-inner   { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .stat-item     { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 28px; }
+    .stat-item:last-child { border-bottom: none; }
+    .how-inner     { flex-direction: column; gap: 40px; }
+    .footer-inner  { flex-direction: column; gap: 36px; }
+    .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+  }
+  @media (max-width: 600px) {
+    .features-grid { grid-template-columns: 1fr; }
+    .nav-links .nav-link-hide { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#" class="nav-logo">Bayanihan</a>
+  <div class="nav-links">
+    <a href="#features"  class="nav-link-hide">Features</a>
+    <a href="#how"       class="nav-link-hide">How It Works</a>
+    <a href="#portals"   class="nav-link-hide">Portals</a>
+    <a href="participant_login.php" class="btn-nav">Get Started</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+
+    <div class="hero-left">
+      <div class="hero-eyebrow fade-up d1">
+        <i class="fa-solid fa-circle-check"></i>
+        Community Program Participation
+      </div>
+      <h1 class="hero-h1 fade-up d2">
+        Stronger communities<br>start <span>here.</span>
+      </h1>
+      <p class="hero-sub fade-up d3">
+        Bayanihan brings local programs, participants, and staff together — track attendance, manage programs, and build a connected neighborhood with ease.
+      </p>
+      <div class="hero-ctas fade-up d4">
+        <a href="participant_register.php" class="btn-primary">
+          <i class="fa-solid fa-user-plus"></i> Join as Participant
+        </a>
+        <a href="staff_login.php" class="btn-secondary">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Staff Login
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STATS ── -->
+<div class="stats-band">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num">500+</div>
+      <div class="stat-lbl">Community Members</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">40+</div>
+      <div class="stat-lbl">Active Programs</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">95%</div>
+      <div class="stat-lbl">Avg. Attendance Rate</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">3</div>
+      <div class="stat-lbl">Roles Supported</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FEATURES ── -->
+<section class="content" id="features">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div class="section-header" style="text-align:center;">
+      <div class="section-label" style="justify-content:center;">
+        <i class="fa-solid fa-star" style="font-size:0.7rem;"></i> Features
+      </div>
+      <h2 class="section-h2" style="margin:0 auto 16px;">Everything your community needs</h2>
+      <p class="section-sub" style="margin:0 auto;">One platform for program management, participant tracking, attendance monitoring, and in-depth analytics — built for real community work.</p>
+    </div>
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#ebf8ff;color:#3182ce;">
+          <i class="fa-solid fa-shapes"></i>
+        </div>
+        <h3 class="feature-h3">Program Management</h3>
+        <p class="feature-p">Create and manage community programs with detailed info on location, schedule, and status — ongoing, upcoming, or completed.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#f0fff4;color:#38a169;">
+          <i class="fa-solid fa-users"></i>
+        </div>
+        <h3 class="feature-h3">Participant Tracking</h3>
+        <p class="feature-p">Register participants, manage their profiles, and monitor their involvement across multiple community programs in one place.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#f1f5f9;color:#334e5e;">
+          <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <h3 class="feature-h3">Attendance Monitoring</h3>
+        <p class="feature-p">Log and review daily attendance per session. Track present and absent records, and see rates at a glance across all programs.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fffbeb;color:#d69e2e;">
+          <i class="fa-solid fa-chart-bar"></i>
+        </div>
+        <h3 class="feature-h3">Analytics & Reports</h3>
+        <p class="feature-p">Platform-wide KPIs, monthly attendance breakdowns, top participant rankings, and program comparisons — all exportable.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fff5f5;color:#e53e3e;">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 class="feature-h3">Role-Based Access</h3>
+        <p class="feature-p">Separate dashboards and permissions for Admins, Staff, and Participants — every user sees exactly what they need.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#f0fff4;color:#38a169;">
+          <i class="fa-solid fa-download"></i>
+        </div>
+        <h3 class="feature-h3">Data Export</h3>
+        <p class="feature-p">Export participant lists, attendance sheets, and reports to CSV or PDF — perfect for official documentation and filing.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="how" id="how">
+  <div class="how-inner">
+
+    <div class="how-left">
+      <div class="section-label">
+        <i class="fa-solid fa-list-check" style="font-size:0.7rem;"></i> How It Works
+      </div>
+      <h2 class="section-h2">Up and running in minutes</h2>
+      <p class="section-sub" style="font-size:0.9rem;">From registration to real-time attendance — the full workflow is straightforward for staff and participants alike.</p>
+    </div>
+
+    <div class="how-right">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-h">Create an account</div>
+          <p class="step-p">Participants register with their email and basic profile. Staff accounts are provisioned by the administrator from the admin portal.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-h">Browse & join programs</div>
+          <p class="step-p">Participants discover available community programs and register for the ones that match their interests and schedule.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-h">Staff logs attendance</div>
+          <p class="step-p">Staff members mark attendance each session. Present and absent records are saved and immediately reflected in analytics.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div>
+          <div class="step-h">Track progress & export</div>
+          <p class="step-p">Everyone monitors their participation history. Staff and admins access full analytics and can export reports at any time.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── PORTALS ── -->
+<section class="content" id="portals">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div class="section-header" style="text-align:center;">
+      <div class="section-label" style="justify-content:center;">
+        <i class="fa-solid fa-door-open" style="font-size:0.7rem;"></i> Access Portals
+      </div>
+      <h2 class="section-h2" style="margin:0 auto 16px;">Three portals. One community.</h2>
+      <p class="section-sub" style="margin:0 auto;">Each role has a tailored experience built around what matters most to them.</p>
+    </div>
+    <div class="portals-grid">
+
+      <div class="portal-card">
+        <div class="portal-header">
+          <div class="portal-badge" style="background:var(--chip-blue-bg);color:var(--chip-blue-tx);">Participant</div>
+          <h3 class="portal-h3">Participant Portal</h3>
+          <p class="portal-p">Register for programs, view your attendance history, track your participation status, and manage your community profile.</p>
+        </div>
+        <div class="portal-divider"></div>
+        <div class="portal-footer">
+          <a href="participant_login.php" class="portal-link">
+            Sign In <i class="fa-solid fa-arrow-right"></i>
+          </a>
+          <span class="portal-pill-count">
+            <a href="participant_register.php" style="color:var(--primary);font-size:0.78rem;font-weight:600;text-decoration:none;">New? Register →</a>
+          </span>
+        </div>
+      </div>
+
+      <div class="portal-card">
+        <div class="portal-header">
+          <div class="portal-badge" style="background:var(--chip-grn-bg);color:var(--chip-grn-tx);">Staff</div>
+          <h3 class="portal-h3">Staff Portal</h3>
+          <p class="portal-p">Manage programs and participants, log daily attendance, review participation records, and generate detailed analytics reports.</p>
+        </div>
+        <div class="portal-divider"></div>
+        <div class="portal-footer">
+          <a href="staff_login.php" class="portal-link">
+            Sign In <i class="fa-solid fa-arrow-right"></i>
+          </a>
+          <span class="portal-pill-count" style="color:var(--text-hint);font-size:0.78rem;">Staff accounts only</span>
+        </div>
+      </div>
+
+      <div class="portal-card">
+        <div class="portal-header">
+          <div class="portal-badge" style="background:var(--chip-org-bg);color:var(--chip-org-tx);">Admin</div>
+          <h3 class="portal-h3">Admin Portal</h3>
+          <p class="portal-p">Full system control — manage all user accounts, oversee every program, view audit logs, and configure platform-wide settings.</p>
+        </div>
+        <div class="portal-divider"></div>
+        <div class="portal-footer">
+          <a href="admin_login.php" class="portal-link">
+            Sign In <i class="fa-solid fa-arrow-right"></i>
+          </a>
+          <span class="portal-pill-count" style="color:var(--text-hint);font-size:0.78rem;">Admin accounts only</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2 class="cta-h2">Ready to strengthen your community?</h2>
+    <p class="cta-sub">Join hundreds of community members already using Bayanihan to connect, participate, and grow together.</p>
+    <div class="cta-btns">
+      <a href="participant_register.php" class="btn-white">
+        <i class="fa-solid fa-user-plus"></i> Register Now
+      </a>
+      <a href="participant_login.php" class="btn-ghost">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i> Already a member
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo">Bayanihan</div>
+      <p>A community program management platform built to bring people together.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <a href="#features">Features</a>
+        <a href="#how">How It Works</a>
+        <a href="#portals">Portals</a>
+      </div>
+      <div class="footer-col">
+        <h4>Access</h4>
+        <a href="participant_login.php">Participant Login</a>
+        <a href="participant_register.php">Register</a>
+        <a href="staff_login.php">Staff Login</a>
+        <a href="admin_login.php">Admin Login</a>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <a href="forgot_password.php">Forgot Password</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Bayanihan Community Platform. All rights reserved.</span>
+    <span>Built with community in mind.</span>
+  </div>
+</footer>
+
+</body>
+</html>
